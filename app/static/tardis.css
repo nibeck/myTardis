@@ -1,0 +1,105 @@
+
+* { outline: 1px solid red; }
+
+body {
+   margin: 0;
+}
+
+.container {
+   width: 100vw;
+   height: 100vh;
+   
+   font-family: 'Quicksand', sans-serif;
+   font-weight: bold;
+   font-size: 20px;
+
+   display: grid;
+   /* 3 columns. 250px - variable - 250px */
+   grid-template-columns: 250px 1fr 250px ;
+   /* 4 rows: row 1 250px (header) - variable row 2 - variable row 3 - row4 100px (footer) */
+   grid-template-rows: 50px 1fr 100px;
+
+   /* gap: 10px; */
+
+   padding: 10px;
+   box-sizing: border-box;
+}
+
+.container div {
+   padding: 10px;
+   /* border: 1px solid black; */
+}
+.header {
+   grid-column-start: 1;
+   grid-column-end: 4;
+   background-color: #DDE4EC;
+   text-align: center;
+}
+.controls, .patterns {
+   display: flex;
+   flex-direction: column;
+   flex-wrap: wrap;
+   justify-content: center;
+   align-items: center;
+   background-color: #DDE4EC;
+}
+.controls {
+   grid-row-start: 2;
+   grid-row-end: span 2;  
+}
+.tardis {
+   grid-row-start: 2;
+   grid-row-end: span 2;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   background-color: #DDE4EC;
+}
+.bottom-layer {
+   position: absolute;
+   /* top:100px; */
+   z-index: 1;
+   align-items: center;
+   border: 0px white;
+}
+.top-layer {
+   position: absolute;
+   /* top:100px; */
+   z-index: 2;
+   align-items: center;
+   border: 0px white;
+}
+.patterns {
+   grid-row-start: 2;
+   grid-row-end: span 2;
+}
+.footer {
+    grid-column-start: 1;
+    grid-column-end: 4;
+    background-color: #DDE4EC;
+    text-align: center;
+}
+.preset-button {
+   margin: 5px;
+   padding: 8px;
+   text-align: center;
+   background-color: #97AEC4;
+   color: #fff;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   width: 100px;
+   font-size: medium;
+}
+.control-button {
+   margin: 5px;
+   padding: 8px;
+   text-align: center;
+   background-color: #97AEC4;
+   color: #fff;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   width: 100px;
+   font-size: medium;
+}

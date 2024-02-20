@@ -1,0 +1,2 @@
+FLASK_APP=mytardis.py
+FLASK_DEBUG=1
