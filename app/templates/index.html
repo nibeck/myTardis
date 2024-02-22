@@ -16,7 +16,7 @@
         <div class="controls">Pick a Color
             <input type="color" id="window-color-picker" value="#FFFFFF">
             <!-- Range control -->
-            <input type="range" id="brightness" min="0" max="255" value="100">
+            <input type="range" id="brightness" min="0" max="255" value="255">
         </div>
         <div class="tardis">
             <div class="bottom-layer">
@@ -45,35 +45,8 @@
     <script>
 
         var brightnessInput = document.getElementById("brightness");
-        var prevBrightnessSliderValue = 100;
+        var prevBrightnessSliderValue = 255; // Initial state
 
-        // Add an event listener for brightness changes
-        brightnessInput.addEventListener("input", function () {
-            // Access the current value of the range input
-            tinycolor(colorInput.value);
-            newBrghtnesssValue = brightnessInput.value;
-            console.log("Prev: ", prevBrightnessSliderValue);
-            console.log("New: ", newBrghtnesssValue);
-
-            // Brighten i.e. going right
-            if (newBrghtnesssValue > prevBrightnessSliderValue) {
-                console.log("Brighten");
-                console.log("Delta ", prevBrightnessSliderValue - newBrghtnesssValue);
-                prevBrightnessSliderValue = prevBrightnessSliderValue + 1;
-                // Call bright function and use "delta" as value
-                newColor = currentColor.brighten(Math.abs(prevBrightnessSliderValue - newBrghtnesssValue));
-            }
-            else if (newBrghtnesssValue < prevBrightnessSliderValue) {
-                console.log("Darken");
-                prevBrightnessSliderValue = prevBrightnessSliderValue - 1;
-                console.log("Delta ", prevBrightnessSliderValue - newBrghtnesssValue);
-                // Call darken function and use "delta" as value
-                newColor = currentColor.darken(Math.abs(prevBrightnessSliderValue - newBrghtnesssValue));
-            }
-            colorInput.value = newColor;
-            updatePathColor(newColor);
-            prevBrightnessSliderValue = newBrghtnesssValue;
-        });
 
         var colorInput = document.getElementById("window-color-picker");
         // Event listener for color changes
@@ -83,19 +56,46 @@
             newColorBrightness = newColor.getBrightness();
             mappedBrightness = rangeMap(newColorBrightness, 0, 255, 0, 100);
             // console.log("New color            ", newColor);
-            console.log("New color brightness ", Math.trunc(newColorBrightness));
-            console.log("Mapped brightness    ", Math.trunc(mappedBrightness));
+            // console.log("New color brightness ", Math.trunc(newColorBrightness));
+            // console.log("Mapped brightness    ", Math.trunc(mappedBrightness));
 
-            updatePathColor(colorInput.value, mappedBrightness);
+            updatePathColor(colorInput.value);
             currentColor = colorInput.value;
             // Set the brightness slider to match the new color brightness
-            brightnessInput.value = mappedBrightness;
+            brightnessInput.value = newColorBrightness;
         });
 
+        // Add an event listener for brightness changes
+        brightnessInput.addEventListener("input", function () {
+            // Access the current value of the range input
+            currentColor = tinycolor(colorInput.value);
+            newBrightnesssValue = brightnessInput.value;
+            brightnessDelta = Math.abs(prevBrightnessSliderValue - newBrightnesssValue);
+
+            // console.log("Prev: ", prevBrightnessSliderValue);
+            // console.log("New: ", newBrightnesssValue);
+            // console.log("Delta ", brightnessDelta);
+
+            // Brighten i.e. going right
+            if (newBrightnesssValue > prevBrightnessSliderValue) {
+                prevBrightnessSliderValue = prevBrightnessSliderValue + 1;
+                // Call bright function and use "delta" as value
+                newColor = currentColor.lighten(brightnessDelta);
+            }
+            else if (newBrightnesssValue < prevBrightnessSliderValue) {
+                prevBrightnessSliderValue = prevBrightnessSliderValue - 1;
+                // Call darken function and use "delta" as value
+                newColor = currentColor.darken(brightnessDelta);
+            }
+            console.log("New color ", newColor.toString("rbgb"));
+            colorInput.value = newColor;
+            // updatePathColor(newColor);
+            prevBrightnessSliderValue = newBrightnesssValue;
+        });
+
+        // update the CSS Window object to match selected color
         function updatePathColor(newColor) {
             var object = document.getElementById("window-color");
-            console.log("Changing Color:", newColor);
-
             var svgDoc = object.contentDocument;
             // Find the specific path element within the SVG (you may need to adjust the selector)
             var pathElement = svgDoc.querySelector("path");
