@@ -1,1 +1,1 @@
-sudo venv/bin/flask run --debug -h localhost -p 5500
+sudo venv/bin/flask run --debug --host=0.0.0.0

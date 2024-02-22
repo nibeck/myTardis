@@ -8,6 +8,7 @@ body {
 .container {
    width: 100vw;
    height: 100vh;
+   background-color: #DDE4EC;
    
    font-family: 'Quicksand', sans-serif;
    font-weight: bold;
@@ -15,7 +16,7 @@ body {
 
    display: grid;
    /* 3 columns. 250px - variable - 250px */
-   grid-template-columns: 250px 1fr 250px ;
+   grid-template-columns: 220px 1fr 220px ;
    /* 4 rows: row 1 250px (header) - variable row 2 - variable row 3 - row4 100px (footer) */
    grid-template-rows: 50px 1fr 100px;
 
@@ -27,12 +28,10 @@ body {
 
 .container div {
    padding: 10px;
-   /* border: 1px solid black; */
 }
 .header {
    grid-column-start: 1;
    grid-column-end: 4;
-   background-color: #DDE4EC;
    text-align: center;
 }
 .controls, .patterns {
@@ -41,7 +40,6 @@ body {
    flex-wrap: wrap;
    justify-content: center;
    align-items: center;
-   background-color: #DDE4EC;
 }
 .controls {
    grid-row-start: 2;
@@ -52,7 +50,7 @@ body {
    grid-row-end: span 2;
    display: flex;
    flex-direction: column;
-   justify-content: center;
+   align-items: center;
    background-color: #DDE4EC;
 }
 .bottom-layer {
@@ -60,14 +58,12 @@ body {
    /* top:100px; */
    z-index: 1;
    align-items: center;
-   border: 0px white;
 }
 .top-layer {
    position: absolute;
    /* top:100px; */
    z-index: 2;
    align-items: center;
-   border: 0px white;
 }
 .patterns {
    grid-row-start: 2;
@@ -76,7 +72,6 @@ body {
 .footer {
     grid-column-start: 1;
     grid-column-end: 4;
-    background-color: #DDE4EC;
     text-align: center;
 }
 .preset-button {

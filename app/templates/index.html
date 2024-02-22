@@ -16,16 +16,16 @@
         <div class="controls">Pick a Color
             <input type="color" id="window-color-picker" value="#FFFFFF">
             <!-- Range control -->
-            <input type="range" id="brightness" min="0" max="100" value="50">
+            <input type="range" id="brightness" min="0" max="255" value="100">
         </div>
         <div class="tardis">
             <div class="bottom-layer">
                 <object id="window-color" type="image/svg+xml"
-                    data="{{ url_for('static', filename='window_color.svg') }}" width="100%" height="100%"></object>
+                    data="{{ url_for('static', filename='window_color.svg') }}" width="80%" height="80%"></object>
             </div>
             <div class="top-layer">
                 <object id="tardis-object" type="image/svg+xml" data="{{ url_for('static', filename='TARDIS.svg') }}"
-                    width="100%" height="100%"></object>
+                    width="80%" height="80%"></object>
             </div>
 
         </div>
@@ -43,30 +43,53 @@
 
     </div>
     <script>
-        var currentColor = "white";
 
         var brightnessInput = document.getElementById("brightness");
+        var prevBrightnessSliderValue = 100;
+
         // Add an event listener for brightness changes
         brightnessInput.addEventListener("input", function () {
             // Access the current value of the range input
-            var brightnessValue = brightnessInput.value;
+            tinycolor(colorInput.value);
+            newBrghtnesssValue = brightnessInput.value;
+            console.log("Prev: ", prevBrightnessSliderValue);
+            console.log("New: ", newBrghtnesssValue);
 
-            // Log or perform any action with the current value
-            console.log("Current Value:", brightnessValue);
-            var originalColor = tinycolor(currentColor);
-            // New, darker color
-            var newColor = originalColor.brighten(brightnessInput.value - 100).toString();
+            // Brighten i.e. going right
+            if (newBrghtnesssValue > prevBrightnessSliderValue) {
+                console.log("Brighten");
+                console.log("Delta ", prevBrightnessSliderValue - newBrghtnesssValue);
+                prevBrightnessSliderValue = prevBrightnessSliderValue + 1;
+                // Call bright function and use "delta" as value
+                newColor = currentColor.brighten(Math.abs(prevBrightnessSliderValue - newBrghtnesssValue));
+            }
+            else if (newBrghtnesssValue < prevBrightnessSliderValue) {
+                console.log("Darken");
+                prevBrightnessSliderValue = prevBrightnessSliderValue - 1;
+                console.log("Delta ", prevBrightnessSliderValue - newBrghtnesssValue);
+                // Call darken function and use "delta" as value
+                newColor = currentColor.darken(Math.abs(prevBrightnessSliderValue - newBrghtnesssValue));
+            }
             colorInput.value = newColor;
             updatePathColor(newColor);
+            prevBrightnessSliderValue = newBrghtnesssValue;
         });
 
         var colorInput = document.getElementById("window-color-picker");
-
         // Event listener for color changes
         colorInput.addEventListener("input", function () {
-            //   console.log("Selected Color:", colorInput.value);
-            updatePathColor(colorInput.value);
-            currentColor = colorInput.value
+            // Get approx brightness from chosen color. Use this to set the brightness slider to match
+            newColor = tinycolor(colorInput.value);
+            newColorBrightness = newColor.getBrightness();
+            mappedBrightness = rangeMap(newColorBrightness, 0, 255, 0, 100);
+            // console.log("New color            ", newColor);
+            console.log("New color brightness ", Math.trunc(newColorBrightness));
+            console.log("Mapped brightness    ", Math.trunc(mappedBrightness));
+
+            updatePathColor(colorInput.value, mappedBrightness);
+            currentColor = colorInput.value;
+            // Set the brightness slider to match the new color brightness
+            brightnessInput.value = mappedBrightness;
         });
 
         function updatePathColor(newColor) {
@@ -78,10 +101,12 @@
             var pathElement = svgDoc.querySelector("path");
             // Update the path color
             pathElement.style.fill = newColor; // You can set any desired color or use a function to generate one 
-            updateTARDIS(newColor);
+            // updateTARDIS(newColor);
         };
 
         function updateTARDIS(newColor) {
+            console.log("Changing TARDIS:", newColor);
+
             // Update physucal TARDIS colors
             // build a callback URL object, send new color via Parameter          
             fetch('/tardis/color', {
@@ -109,6 +134,13 @@
                     console.error('Error:', error);
                 });
         };
+
+        // Function to map one tange 1-255 into another 0-100
+        // We use this to map from a brightness of 0-2255 to a value of 0-100 
+        // foi rthe range controller
+        function rangeMap(number, inMin, inMax, outMin, outMax) {
+            return (number - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        }
 
     </script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
