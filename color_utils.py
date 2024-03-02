@@ -26,3 +26,25 @@ def wheel(pos):
 
 def rgb_int2tuple(rgbint):
     return (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
+
+
+def hex_to_color(hex_color):
+    """
+    Convert HEX color code to rpi_ws281x Color type.
+
+    Parameters:
+    - hex_color (str): HEX color code (e.g., "#RRGGBB").
+
+    Returns:
+    - Color: rpi_ws281x Color type.
+    """
+    # Remove the "#" from the HEX color code
+    hex_color = hex_color.lstrip("#")
+
+    # Convert HEX to RGB
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+
+    # Create and return Color object
+    return Color(r, g, b)

@@ -1,5 +1,6 @@
 from rpi_ws281x import Color, PixelStrip
-import color_utils
+
+from color_utils import rgb_int2tuple
 import colorsys
 import time
 import math
@@ -26,35 +27,36 @@ class TARDIS:
 
         self.frontWindow = self.Window()
         self.frontWindow.location = "front"
-        self.frontWindow.color = GRAY
+        self.frontWindow.color = BLACK
         self.frontWindow.prevColor = self.frontWindow.color
         self.frontWindow.brightness = 50
 
         self.backWindow = self.Window()
         self.backWindow.location = "back"
-        self.backWindow.color = GRAY
+        self.backWindow.color = BLACK
         self.backWindow.prevColor = self.backWindow.color
         self.backWindow.brightness = 50
 
         self.rtWindow = self.Window()
         self.rtWindow.location = "right"
-        self.rtWindow.color = GRAY
+        self.rtWindow.color = BLACK
         self.rtWindow.prevColor = self.rtWindow.color
         self.rtWindow.brightness = 50
 
         self.leftWindow = self.Window()
         self.leftWindow.location = "left"
-        self.leftWindow.color = GRAY
+        self.leftWindow.color = BLACK
         self.leftWindow.prevColor = self.leftWindow.color
         self.leftWindow.brightness = 50
 
         # top Light
-        self.topLightColor = GRAY
+        self.topLightColor = BLACK
         self.topLightPrevColor = self.topLightColor
         self.topLightBrightness = 50
         self.topLightPrevBrioghtness = self.topLightBrightness
 
     def turnOff(self):
+        print("TARDIS - turning off")
         self.frontWindow.turnOff()
         self.backWindow.turnOff()
         self.rtWindow.turnOff()
@@ -201,14 +203,14 @@ class TARDIS:
             )
 
         def turnOn(self):
-            self._brightness = self.prevBrightness
-            self.color = self.prevColor
-            self.prevColor = BLACK
+            # self._brightness = self.prevBrightness
+            # self.color = self.prevColor
+            # self.prevColor = BLACK
             self.updateLED_color()
 
         def turnOff(self):
             self.prevColor = self.color
-            self.prevBrightness = self.brightness
+            # self.prevBrightness = self.brightness
             self.color = BLACK
             self.updateLED_color()
 

@@ -1,5 +1,5 @@
 import os
-from rpi_ws281x import *
+from rpi_ws281x import Color
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 

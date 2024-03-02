@@ -18,6 +18,19 @@ LED_CHANNEL = 0
 LED_STRIP = ws.SK6812_STRIP_RGBW
 # LED_STRIP = ws.SK6812W_STRIP
 
+BLUE = Color(0, 0, 255)
+BLACK = Color(0, 0, 0)
+WHITE = Color(255, 255, 255)
+RED = Color(255, 0, 0)
+PURPLE = Color(127, 0, 255)
+YELLOW = Color(255, 255, 0)
+GREEN = Color(50, 205, 50)
+TEAL = Color(100, 128, 128)
+NAVY = Color(0, 0, 128)
+LIGHTRED = Color(5, 0, 0)
+TARDISBLUE = Color(0, 59, 111)
+GRAY = Color(66, 66, 66)
+
 
 # Define functions which animate LEDs in various ways.
 def colorWipe(strip, color, wait_ms=50):
@@ -82,6 +95,42 @@ def theaterChaseRainbow(strip, wait_ms=50):
                 strip.setPixelColor(i + q, 0)
 
 
+def fade_color_to_black(strip, color, fade_time):
+    steps = 50  # Number of steps for the fade
+    delay = fade_time / steps
+    print("In Fade to black")
+
+    for i in range(steps):
+        fade_factor = 1 - (i / steps)
+
+        r = color >> 16 & 0xFF
+        g = color >> 8 & 0xFF
+        b = color & 0xFF
+
+        faded_color = Color(
+            int(r * fade_factor), int(g * fade_factor), int(b * fade_factor)
+        )
+
+        for j in range(strip.numPixels()):
+            strip.setPixelColor(j, faded_color)
+
+        strip.show()
+        time.sleep(delay)
+
+
+def fade_cycle(strip):
+    print("In Fade Cycle")
+    try:
+        while True:
+            fade_color_to_black(strip, Color(255, 0, 0), 2)  # Fade to red
+            # fade_color_to_black(strip, Color(0, 0, 0), 1)  # Fade to black
+            # fade_color_to_black(strip, Color(0, 0, 255), 2)  # Fade to blue
+            # fade_color_to_black(strip, Color(0, 0, 0), 1)  # Fade to black
+    except KeyboardInterrupt:
+        print("Exiting gracefully")
+        colorWipe(strip, Color(0, 0, 0), 10)  # Turn off LEDs when exiting
+
+
 # Main program logic follows:
 if __name__ == "__main__":
     # Create NeoPixel object with appropriate configuration.
@@ -99,7 +148,7 @@ if __name__ == "__main__":
     strip.begin()
 
     print("Press Ctrl-C to quit.")
-    # while True:
+
     #     # Color wipe animations.
     #     colorWipe(strip, Color(255, 0, 0))  # Red wipe
     #     colorWipe(strip, Color(0, 255, 0))  # Blue wipe
@@ -115,9 +164,6 @@ if __name__ == "__main__":
     #     theaterChase(strip, Color(127, 127, 127, 0))  # Composite White theater chase
     #     theaterChase(strip, Color(127, 127, 127, 127))  # Composite White + White theater chase
 
-    # Rainbow animations.
-    # rainbow(strip)
-    # rainbowCycle(strip)
-    theaterChaseRainbow(strip)
+    fade_cycle(strip)
 
     colorWipe(strip, Color(0, 0, 0))

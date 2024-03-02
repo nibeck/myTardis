@@ -7,144 +7,218 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='tardis.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    <title>___TARDIS___</title>
+
+    <title>Manage Your TARDIS</title>
 </head>
 
 <body>
     <div class="container">
-        <div class="header">Your TARDIS</div>
-        <div class="controls">Pick a Color
-            <input type="color" id="window-color-picker" value="#FFFFFF">
-            <!-- Range control -->
-            <input type="range" id="brightness" min="0" max="255" value="255">
+        <div class="item header">
+            Welcome to your TARDIS, Doctor!!
         </div>
-        <div class="tardis">
-            <div class="bottom-layer">
-                <object id="window-color" type="image/svg+xml"
-                    data="{{ url_for('static', filename='window_color.svg') }}" width="80%" height="80%"></object>
-            </div>
-            <div class="top-layer">
-                <object id="tardis-object" type="image/svg+xml" data="{{ url_for('static', filename='TARDIS.svg') }}"
-                    width="80%" height="80%"></object>
-            </div>
+        <div class="item topcorner"></div>
+        <div class="item left-nav">
+            Patterns
+            0 <button class="button" id="rainbowButton">Rainbow</button>
+            <button class="button" id="flashButton">Flash</button>
+            <button class="button" id="pulseButton">Pulse</button>
+            <button class="button" id="partyButton">Party</button>
+            <hr>Controls
+            <button class="button" id="leaveButton">Leave</button>
+            <button class="button" id="arriveButton">Arrive</button>
+            <button class="button" id="soundsButton">Sounds</button>
+        </div>
+        <div class="item tardis">
+            <object id="tardis-object" type="image/svg+xml" data="{{ url_for('static', filename='TARDIS.svg') }}"
+                width="90%" height="90%"></object>
+        </div>
+        <div class="item tardis-lights">
+            <object id="window-color" type="image/svg+xml" data="{{ url_for('static', filename='window_color.svg') }}"
+                width="90%" height="90%"></object>
+        </div>
+        <div class="item color-picker">
+            <label class="form-check-label" for="window-color-picker">Color </label>
+            <input type="color" class="form-control form-control-color w-25" id="window-color-picker" value="#000000">
 
+            <label class="form-check-label" for="powerSwitch">&nbsp&nbsp&nbsp&nbspPower </label>
+            <input class="form-check-input" type="checkbox" role="switch" id="powerSwitch">
         </div>
-        <div class="patterns">Pre-Sets
-            <button class="preset-button">Rainbow</button>
-            <button class="preset-button">Flash</button>
-            <button class="preset-button">Pulse</button>
-            <button class="preset-button">Party</button>
-        </div>
-        <div class="footer">
-            <button class="control-button">Leave</button>
-            <button class="control-button">Arrive</button>
-            <button class="control-button">Play Sound</button>
-        </div>
-
     </div>
-    <script>
-
-        var brightnessInput = document.getElementById("brightness");
-        var prevBrightnessSliderValue = 255; // Initial state
-
-
-        var colorInput = document.getElementById("window-color-picker");
-        // Event listener for color changes
-        colorInput.addEventListener("input", function () {
-            // Get approx brightness from chosen color. Use this to set the brightness slider to match
-            newColor = tinycolor(colorInput.value);
-            newColorBrightness = newColor.getBrightness();
-            mappedBrightness = rangeMap(newColorBrightness, 0, 255, 0, 100);
-            // console.log("New color            ", newColor);
-            // console.log("New color brightness ", Math.trunc(newColorBrightness));
-            // console.log("Mapped brightness    ", Math.trunc(mappedBrightness));
-
-            updatePathColor(colorInput.value);
-            currentColor = colorInput.value;
-            // Set the brightness slider to match the new color brightness
-            brightnessInput.value = newColorBrightness;
-        });
-
-        // Add an event listener for brightness changes
-        brightnessInput.addEventListener("input", function () {
-            // Access the current value of the range input
-            currentColor = tinycolor(colorInput.value);
-            newBrightnesssValue = brightnessInput.value;
-            brightnessDelta = Math.abs(prevBrightnessSliderValue - newBrightnesssValue);
-
-            // console.log("Prev: ", prevBrightnessSliderValue);
-            // console.log("New: ", newBrightnesssValue);
-            // console.log("Delta ", brightnessDelta);
-
-            // Brighten i.e. going right
-            if (newBrightnesssValue > prevBrightnessSliderValue) {
-                prevBrightnessSliderValue = prevBrightnessSliderValue + 1;
-                // Call bright function and use "delta" as value
-                newColor = currentColor.lighten(brightnessDelta);
-            }
-            else if (newBrightnesssValue < prevBrightnessSliderValue) {
-                prevBrightnessSliderValue = prevBrightnessSliderValue - 1;
-                // Call darken function and use "delta" as value
-                newColor = currentColor.darken(brightnessDelta);
-            }
-            console.log("New color ", newColor.toString("rbgb"));
-            colorInput.value = newColor;
-            // updatePathColor(newColor);
-            prevBrightnessSliderValue = newBrightnesssValue;
-        });
-
-        // update the CSS Window object to match selected color
-        function updatePathColor(newColor) {
-            var object = document.getElementById("window-color");
-            var svgDoc = object.contentDocument;
-            // Find the specific path element within the SVG (you may need to adjust the selector)
-            var pathElement = svgDoc.querySelector("path");
-            // Update the path color
-            pathElement.style.fill = newColor; // You can set any desired color or use a function to generate one 
-            // updateTARDIS(newColor);
-        };
-
-        function updateTARDIS(newColor) {
-            console.log("Changing TARDIS:", newColor);
-
-            // Update physucal TARDIS colors
-            // build a callback URL object, send new color via Parameter          
-            fetch('/tardis/color', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'newColor=' + newColor,
-            })
-                .then(response => {
-                    // Check if the response is a JSON
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.indexOf('application/json') !== -1) {
-                        return response.json();
-                    } else {
-                        // If not JSON, return the plain text
-                        return response.text();
-                    }
-                })
-                .then(data => {
-                    console.log(data);
-                })
-                .catch(error => {
-                    console.log(error);
-                    console.error('Error:', error);
-                });
-        };
-
-        // Function to map one tange 1-255 into another 0-100
-        // We use this to map from a brightness of 0-2255 to a value of 0-100 
-        // foi rthe range controller
-        function rangeMap(number, inMin, inMax, outMin, outMax) {
-            return (number - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
-        }
-
-    </script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.1/tinycolor.min.js"></script>
 </body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var prevColor = "#000000";
+
+        powerSwitch.checked = false;
+        flashButton.disabled = !powerSwitch.checked;
+        pulseButton.disabled = !powerSwitch.checked;
+        rainbowButton.disabled = !powerSwitch.checked;
+        partyButton.disabled = !powerSwitch.checked;
+        leaveButton.disabled = !powerSwitch.checked;
+        arriveButton.disabled = !powerSwitch.checked;
+        soundsButton.disabled = !powerSwitch.checked;
+    });
+
+</script>
+
+<script>
+    var colorInput = document.getElementById("window-color-picker");
+
+    var powerSwitch = document.getElementById('powerSwitch');
+    var flashButton = document.getElementById('flashButton');
+    var pulseButton = document.getElementById('pulseButton');
+    var rainbowButton = document.getElementById("rainbowButton");
+    var partyButton = document.getElementById('partyButton');
+    var leaveButton = document.getElementById('leaveButton');
+    var arriveButton = document.getElementById('arriveButton');
+    var soundsButton = document.getElementById('soundsButton');
+    var prevColor = "#000000";
+
+    // Color set - Event listener for color changes
+    colorInput.addEventListener("input", function () {
+        var selectedColor = colorInput.value;
+        // console.log("New color selected", selectedColor);
+
+        if (selectedColor == "#000000") {
+            // console.log("Turning OFF since color was black");
+            powerSwitch.checked = false;
+        } else {
+            // console.log("Turning on since color was NOT black");
+            powerSwitch.checked = true;
+        }
+        updatePathColor(selectedColor);
+        prevColor = selectedColor;
+    });
+
+    // Power switch: Add an event listener to respond to the "change" event
+    powerSwitch.addEventListener('change', function () {
+        // Check if the checkbox is checked
+        if (powerSwitch.checked) {
+            // Turn TARDIS On
+            fetchURL = "/tardis/on";
+            colorInput.value = prevColor;
+
+        } else {
+            // Turn TARDIS Off
+            fetchURL = "/tardis/off";
+            colorInput.value = "#000000"
+        }
+        flashButton.disabled = !powerSwitch.checked;
+        pulseButton.disabled = !powerSwitch.checked;
+        rainbowButton.disabled = !powerSwitch.checked;
+        partyButton.disabled = !powerSwitch.checked;
+        leaveButton.disabled = !powerSwitch.checked;
+        arriveButton.disabled = !powerSwitch.checked;
+        soundsButton.disabled = !powerSwitch.checked;
+
+        newColor = colorInput.value;
+        updatePathColor(colorInput.value);
+        // Build Fetch URL and call-back into Python
+        fetch(fetchURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'newColor=' + newColor,
+        })
+            .then(response => {
+                // Check if the response is a JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.indexOf('application/json') !== -1) {
+                    return response.json();
+                } else {
+                    // If not JSON, return the plain text
+                    return response.text();
+                }
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.log(error);
+                console.error('Error:', error);
+            });
+    });
+
+    // Draw CSS Color - update the CSS Window object to match selected color
+    function updatePathColor(newColor) {
+        var windowObject = document.getElementById("window-color");
+        var svgDoc = windowObject.contentDocument;
+        // Find the specific path element within the SVG (you may need to adjust the selector)
+        var pathElement = svgDoc.querySelector("path");
+        // Update the path color
+        pathElement.style.fill = newColor; // You can set any desired color or use a function to generate one 
+        updateTARDIS(newColor);
+    };
+
+    // Flash - Add an event listener to respond to the button click
+    flashButton.addEventListener('click', async function () {
+
+        updatePathColor("#000000");
+        await sleep(100);
+        updatePathColor(prevColor);
+        await sleep(100);
+        updatePathColor("#000000");
+        await sleep(100);
+        updatePathColor(prevColor);
+        await sleep(100);
+        updatePathColor("#000000");
+        await sleep(100);
+        updatePathColor(prevColor);
+        await sleep(100);
+        updatePathColor("#000000");
+        await sleep(100);
+        updatePathColor(prevColor);
+    });
+
+    pulseButton.addEventListener('click', async function () {
+        console.log("Pulse Window")
+        updatePathColor("#000000");
+        await sleep(100);
+        updatePathColor(prevColor);
+    });
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function updateTARDIS(newColor) {
+        console.log("Changing TARDIS:", newColor);
+
+        // Update physucal TARDIS colors
+        // build a callback URL object, send new color via Parameter          
+        fetch('/tardis/color', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'newColor=' + newColor,
+        })
+            .then(response => {
+                // Check if the response is a JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.indexOf('application/json') !== -1) {
+                    return response.json();
+                } else {
+                    // If not JSON, return the plain text
+                    return response.text();
+                }
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.log(error);
+                console.error('Error:', error);
+            });
+    };
+
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.1/tinycolor.min.js"></script>
+
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Slider</title>
+    <!-- Include the TinyColor library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.1/tinycolor.min.js"></script>
+
+</head>
+
+<body>
+
+    <label for="colorPicker">Choose a color:</label>
+    <input type="color" id="colorPicker">
+
+    <label for="lightnessSlider">Adjust lightness:</label>
+    <input type="range" id="lightnessSlider" min="0" max="100" value="50">
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get references to HTML elements
+            var colorPicker = document.getElementById("colorPicker");
+            var lightnessSlider = document.getElementById("lightnessSlider");
+
+            // Add event listeners to color picker and lightness slider
+            colorPicker.addEventListener("input", updateBackgroundColor);
+            lightnessSlider.addEventListener("input", updateBackgroundColor);
+
+            // Function to update background color based on color picker and lightness slider values
+            function updateBackgroundColor() {
+                var selectedColor = colorPicker.value;
+                var lightnessValue = lightnessSlider.value;
+
+                // Use TinyColor library to manipulate color
+                var adjustedColor = tinycolor(selectedColor).lighten(lightnessValue);
+
+                // Set the background color of the body
+                document.body.style.backgroundColor = adjustedColor.toHexString();
+
+                // Optionally, you can display the color information
+                console.clear(); // Clear console for better readability
+                console.log(`Selected Color: ${selectedColor}`);
+                console.log(`Adjusted Color: ${adjustedColor.toHexString()}`);
+            }
+        });
+    </script>
+
+</body>
+
+</html>
