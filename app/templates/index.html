@@ -19,7 +19,7 @@
         <div class="item topcorner"></div>
         <div class="item left-nav">
             Patterns
-            0 <button class="button" id="rainbowButton">Rainbow</button>
+            <button class="button" id="rainbowButton">Rainbow</button>
             <button class="button" id="flashButton">Flash</button>
             <button class="button" id="pulseButton">Pulse</button>
             <button class="button" id="partyButton">Party</button>
@@ -60,11 +60,8 @@
         soundsButton.disabled = !powerSwitch.checked;
     });
 
-</script>
 
-<script>
     var colorInput = document.getElementById("window-color-picker");
-
     var powerSwitch = document.getElementById('powerSwitch');
     var flashButton = document.getElementById('flashButton');
     var pulseButton = document.getElementById('pulseButton');
@@ -89,6 +86,7 @@
         }
         updatePathColor(selectedColor);
         prevColor = selectedColor;
+        updateButtonStates();
     });
 
     // Power switch: Add an event listener to respond to the "change" event
@@ -104,13 +102,7 @@
             fetchURL = "/tardis/off";
             colorInput.value = "#000000"
         }
-        flashButton.disabled = !powerSwitch.checked;
-        pulseButton.disabled = !powerSwitch.checked;
-        rainbowButton.disabled = !powerSwitch.checked;
-        partyButton.disabled = !powerSwitch.checked;
-        leaveButton.disabled = !powerSwitch.checked;
-        arriveButton.disabled = !powerSwitch.checked;
-        soundsButton.disabled = !powerSwitch.checked;
+        updateButtonStates();
 
         newColor = colorInput.value;
         updatePathColor(colorInput.value);
@@ -141,6 +133,15 @@
             });
     });
 
+    function updateButtonStates() {
+        flashButton.disabled = !powerSwitch.checked;
+        pulseButton.disabled = !powerSwitch.checked;
+        rainbowButton.disabled = !powerSwitch.checked;
+        partyButton.disabled = !powerSwitch.checked;
+        leaveButton.disabled = !powerSwitch.checked;
+        arriveButton.disabled = !powerSwitch.checked;
+        soundsButton.disabled = !powerSwitch.checked;
+    }
     // Draw CSS Color - update the CSS Window object to match selected color
     function updatePathColor(newColor) {
         var windowObject = document.getElementById("window-color");
@@ -172,12 +173,47 @@
         updatePathColor(prevColor);
     });
 
+    // Pulse light from current color to dark
     pulseButton.addEventListener('click', async function () {
-        console.log("Pulse Window")
-        updatePathColor("#000000");
-        await sleep(100);
-        updatePathColor(prevColor);
+        var steps = 15; // Number of steps for the fade
+        var fadeTime = 500; // 2 seconds
+        var cycleCnt = 5;
+
+        fadeHexColorLoop(colorInput.value, steps, fadeTime, cycleCnt);
     });
+
+    async function fadeHexColorLoop(hexColor, steps, fadeTime, repeatCount) {
+        for (var k = 0; k < repeatCount; k++) {
+            var origColor = hexColor;
+            // Fade to black
+            for (var i = 0; i < steps; i++) {
+                var fadeFactor = 1 - (i / steps);
+                var rgbColor = hexToRgb(hexColor);
+                var r = Math.max(0, Math.floor(rgbColor.r * fadeFactor));
+                var g = Math.max(0, Math.floor(rgbColor.g * fadeFactor));
+                var b = Math.max(0, Math.floor(rgbColor.b * fadeFactor));
+                hexColor = rgbToHex(r, g, b);
+
+                updatePathColor(hexColor);
+                // updateTARDIS(hexColor);
+                await sleep(fadeTime / steps);
+            }
+
+            // Fade back to original color
+            for (var i = 0; i < steps; i++) {
+                var fadeFactor = i / steps;
+                var rgbColor = hexToRgb(origColor);
+                var r = Math.max(0, Math.floor(rgbColor.r * fadeFactor));
+                var g = Math.max(0, Math.floor(rgbColor.g * fadeFactor));
+                var b = Math.max(0, Math.floor(rgbColor.b * fadeFactor));
+                hexColor = rgbToHex(r, g, b);
+                updatePathColor(hexColor);
+                // updateTARDIS(hexColor);
+
+                await sleep(fadeTime / steps);
+            }
+        }
+    }
 
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -214,6 +250,30 @@
             });
     };
 
+    function componentToHex(c) {
+        var hex = c.toString(16);
+        console.log("componentToHex (c)", c);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+
+    function rgbToHex(r, g, b) {
+        console.log("rgbToHex (r,g,b)", r, g, b);
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
+
+    function hexToRgb(hex) {
+        // Remove the hash if present
+        hex = hex.replace(/^#/, '');
+
+        // Parse the hex value into RGB components
+        var bigint = parseInt(hex, 16);
+        var r = (bigint >> 16) & 255;
+        var g = (bigint >> 8) & 255;
+        var b = bigint & 255;
+
+        // Return an object with RGB values
+        return { r: r, g: g, b: b };
+    }
 </script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

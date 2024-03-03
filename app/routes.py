@@ -78,6 +78,7 @@ def turnOn():
 def tardisColor():
     print("In TARDIS Color")
     newColor = hex_to_color(request.form["newColor"])
+
     myTARDIS.setWindowColors(newColor)
     print(request.form["newColor"])
     return "Successfully changes Color"
